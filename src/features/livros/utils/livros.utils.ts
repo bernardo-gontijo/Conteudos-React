@@ -1,3 +1,5 @@
+import type { Livro } from "../types/livro";
+
 export function normalizarTexto(texto: string): string{
     return texto
         .normalize('NFD')
@@ -14,7 +16,12 @@ export function filtrarlivrosPorTermo(
     const termoNormalizado = normalizarTexto(termo);
 
     if(termoNormalizado.length === 0){
-        return livros;
+        return livros.filter((livro)=>
+            normalizarTexto(livro.titulo).includes(termoNormalizado) ||
+            normalizarTexto(livro.autor).includes(termoNormalizado ) ||
+            normalizarTexto(livro.categoria).includes(termoNormalizado) ||
+            normalizarTexto(livro.isbn).includes(termoNormalizado)
+        );
     }
 
     return livros.filter((livro) => {
@@ -23,3 +30,19 @@ export function filtrarlivrosPorTermo(
         return titulo.includes(termoNormalizado) || autor.includes(termoNormalizado)
     })
 }
+
+export function ordenarLivrosFavoritos(
+    livros: readonly Livro[], idsFavoritos: readonly string[]
+): readonly Livro[]{
+    const favoritoSet = new Set(idsFavoritos);
+    return livros.filter((livro) => favoritoSet.has(livro.id));
+}
+
+export function ordenarLivrosPorTitulo(
+    livros: readonly Livro[]
+): readonly Livro[] {
+    return [...livros].sort((a, b) =>
+    a.titulo.localeCompare(b.titulo, 'pt-BR')
+);
+}
+
