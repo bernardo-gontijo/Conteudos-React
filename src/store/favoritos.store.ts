@@ -1,6 +1,9 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware'
+
 interface FavoritosState{
     readonly favoritos: readonly string[];
-    readonly alternatFavorito: (livroId: string) => void;
+    readonly alternarFavorito: (livroId: string) => void;
     readonly estaNosFavoritos: (livroId: string) => boolean;
     readonly limparFavoritos: () => void;
 }
@@ -8,8 +11,24 @@ interface FavoritosState{
 export const useFavoritosStore = create<FavoritosState>() => (
     persist((set, get) => ({
         favoritos: [],
-        alternatFavorito: (livroId: string) => { },
+
+        alternarFavorito: (livroId: string) => { 
+            const atuais = get().favoritos;
+            const jaFavoritado = atuais.includes(livroId);
+            set({
+                favoritos: jaFavoritado
+                    ? atuais.filter((id) => id != livroId)
+                    : [...atuais, livroId]
+            });
+        },
+
         estaNosFavoritos: (livroId: string) => get().favoritos.includes(livroId),
         limparFavoritos: () => set({favoritos: []})
-    }),{name: 'livraria-favoritos'})
+    }),
+    {name: 'livraria-favoritos'}
+    )
+);
+
+const totalFavoritos = useFavoritosStore(
+    (state) => state.favoritos.length
 );

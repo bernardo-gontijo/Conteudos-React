@@ -1,3 +1,12 @@
+import { crateBrowserRouter } from 'react-router';
+import { Layout } from '../components/Layout';
+import { CatalogoPage }  from '../features/livros/pages/CatalogoPage';
+import { CategoriaPage } from '../features/livros/pages/CategoriaPage';
+import { FavoritosPage } from '../features/livros/pages/FavoritosPage';
+import { LivroDetalhePage } from '../features/livros/pages/LivroDetalhePage';
+import { HomePage } from '../pages/HomePage';
+import { NotFoundPage } from '../pages/NotFoundPage';
+
 export const router = createBrowserRouter([
     {
         path: '/',
