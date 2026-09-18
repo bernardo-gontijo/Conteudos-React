@@ -2,7 +2,7 @@
 
 ## TrilhaFit — mudanças implementadas
 
-Esta seção documenta somente as alterações realizadas no projeto `trilhafit` durante os exercícios e desafios atuais, foi feito basicamente as atividades pedidasna aula do dia 15/09/2026.
+Esta seção documenta somente as alterações realizadas no projeto `trilhafit` durante os exercícios e desafios atuais, foi feito basicamente as atividades pedidas na aula do dia 15/09/2026.
 
 ### Catálogo de treinos
 
