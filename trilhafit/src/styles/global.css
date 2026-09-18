@@ -430,6 +430,19 @@ ol {
   object-fit: cover;
 }
 
+.treino-card__duracao {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--cor-azul);
+  color: var(--cor-destaque-texto);
+  font-family: var(--fonte-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 .treino-card__corpo {
   padding: 16px;
 }
@@ -500,6 +513,43 @@ ol {
 
 .selo--mobilidade {
   background: var(--cor-azul);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Paginação                                                              */
+/* ---------------------------------------------------------------------- */
+.paginacao {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.paginacao__botao {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 10px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  cursor: pointer;
+}
+
+.paginacao__botao:hover:not(:disabled) {
+  border-color: var(--cor-destaque);
+}
+
+.paginacao__botao--ativo {
+  border-color: var(--cor-destaque);
+  background: var(--cor-destaque);
+  color: var(--cor-destaque-texto);
+}
+
+.paginacao__botao:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 /* ---------------------------------------------------------------------- */

@@ -3,26 +3,53 @@ import { CampoBusca } from '../../../components/CampoBusca';
 import { Loading } from '../../../components/Loading';
 import { MensagemErro } from '../../../components/MensagemErro';
 import { ListaTreinos } from '../components/ListaTreinos';
+import { Paginacao } from '../components/Paginacao';
 import { useTreinos } from '../hooks/useTreinos';
 import { useDebounce } from '../hooks/useDebounce';
-import { filtrarTreinos } from '../treinos.utils';
+import {
+  filtrarPorNivel,
+  filtrarTreinos,
+  ordenarTreinos,
+  type OrdenacaoTreinos,
+} from '../treinos.utils';
 import { GRUPOS_MUSCULARES, NIVEIS, ROTULO_GRUPO, ROTULO_NIVEL } from '../types';
 import type { GrupoMuscular, Nivel } from '../types';
 
 export function CatalogoPage() {
+  const TREINOS_POR_PAGINA = 8;
   const { data: treinos, isLoading, isError, refetch } = useTreinos();
   const [termoBusca, setTermoBusca] = useState('');
   const [grupoSelecionado, setGrupoSelecionado] = useState<GrupoMuscular | 'todos'>('todos');
   const [nivelSelecionado, setNivelSelecionado] = useState<Nivel | 'todos'>('todos');
+  const [ordenacao, setOrdenacao] = useState<OrdenacaoTreinos>('titulo');
+  const [paginaAtual, setPaginaAtual] = useState(1);
 
   const termoDebounced = useDebounce(termoBusca, 300);
 
   // useMemo evita refazer o filtro em toda renderização — só recalcula
   // quando a lista de treinos ou algum dos critérios de fato muda.
-  const treinosFiltrados = useMemo(() => {
+  const treinosFiltradosEOrdenados = useMemo(() => {
     if (!treinos) return [];
-    return filtrarTreinos(treinos, termoDebounced, grupoSelecionado, nivelSelecionado);
-  }, [treinos, termoDebounced, grupoSelecionado, nivelSelecionado]);
+    const filtradosPorBusca = filtrarTreinos(treinos, termoDebounced, grupoSelecionado);
+    const filtradosPorNivel = filtrarPorNivel(filtradosPorBusca, nivelSelecionado);
+    return ordenarTreinos(filtradosPorNivel, ordenacao);
+  }, [treinos, termoDebounced, grupoSelecionado, nivelSelecionado, ordenacao]);
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(treinosFiltradosEOrdenados.length / TREINOS_POR_PAGINA)
+  );
+
+  const treinosDaPagina = useMemo(() => {
+    const inicio = (paginaAtual - 1) * TREINOS_POR_PAGINA;
+    return treinosFiltradosEOrdenados.slice(inicio, inicio + TREINOS_POR_PAGINA);
+  }, [treinosFiltradosEOrdenados, paginaAtual]);
+
+  function alterarTermoBusca(novoTermo: string) {
+    setTermoBusca(novoTermo);
+    setPaginaAtual(1);
+    if (novoTermo.trim() === '') setOrdenacao('titulo');
+  }
 
   return (
     <div className="pagina">
@@ -32,11 +59,14 @@ export function CatalogoPage() {
       </header>
 
       <div className="filtros">
-        <CampoBusca valor={termoBusca} aoAlterar={setTermoBusca} />
+        <CampoBusca valor={termoBusca} aoAlterar={alterarTermoBusca} />
 
         <select
           value={grupoSelecionado}
-          onChange={(e) => setGrupoSelecionado(e.target.value as GrupoMuscular | 'todos')}
+          onChange={(e) => {
+            setGrupoSelecionado(e.target.value as GrupoMuscular | 'todos');
+            setPaginaAtual(1);
+          }}
           aria-label="Filtrar por grupo muscular"
         >
           <option value="todos">Todos os grupos</option>
@@ -49,7 +79,10 @@ export function CatalogoPage() {
 
         <select
           value={nivelSelecionado}
-          onChange={(e) => setNivelSelecionado(e.target.value as Nivel | 'todos')}
+          onChange={(e) => {
+            setNivelSelecionado(e.target.value as Nivel | 'todos');
+            setPaginaAtual(1);
+          }}
           aria-label="Filtrar por nível"
         >
           <option value="todos">Todos os níveis</option>
@@ -58,6 +91,19 @@ export function CatalogoPage() {
               {ROTULO_NIVEL[nivel]}
             </option>
           ))}
+        </select>
+
+        <select
+          value={ordenacao}
+          onChange={(e) => {
+            setOrdenacao(e.target.value as OrdenacaoTreinos);
+            setPaginaAtual(1);
+          }}
+          aria-label="Ordenar treinos"
+        >
+          <option value="titulo">Título (A–Z)</option>
+          <option value="duracao">Duração (menor primeiro)</option>
+          <option value="nivel">Nível</option>
         </select>
       </div>
 
@@ -71,10 +117,17 @@ export function CatalogoPage() {
       {treinos && (
         <>
           <p className="filtros__resultado" aria-live="polite">
-            {treinosFiltrados.length}{' '}
-            {treinosFiltrados.length === 1 ? 'treino encontrado' : 'treinos encontrados'}
+            {treinosFiltradosEOrdenados.length}{' '}
+            {treinosFiltradosEOrdenados.length === 1
+              ? 'treino encontrado'
+              : 'treinos encontrados'}
           </p>
-          <ListaTreinos treinos={treinosFiltrados} />
+          <ListaTreinos treinos={treinosDaPagina} />
+          <Paginacao
+            totalPaginas={totalPaginas}
+            paginaAtual={paginaAtual}
+            onMudarPagina={setPaginaAtual}
+          />
         </>
       )}
     </div>

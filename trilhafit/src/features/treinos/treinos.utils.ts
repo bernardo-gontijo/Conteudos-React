@@ -1,5 +1,13 @@
 import type { Categoria, GrupoMuscular, Nivel, RegistroTreino, Treino } from './types';
 
+export type OrdenacaoTreinos = 'titulo' | 'duracao' | 'nivel';
+
+const ORDEM_NIVEIS: Record<Nivel, number> = {
+  iniciante: 0,
+  intermediario: 1,
+  avancado: 2,
+};
+
 /**
  * Filtra treinos por um termo de busca livre (título) e, opcionalmente,
  * por grupo muscular e nível. Função pura — sem dependências externas —
@@ -27,6 +35,47 @@ export function filtrarTreinos(
 
     return combinaTermo && combinaGrupo && combinaNivel;
   });
+}
+
+/**
+ * Filtra exclusivamente pelo nível escolhido. A opção "todos" mantém a
+ * coleção completa e uma nova lista é sempre devolvida.
+ */
+export function filtrarPorNivel(
+  treinos: Treino[],
+  nivel: Nivel | 'todos' = 'todos'
+): Treino[] {
+  if (nivel === 'todos') return [...treinos];
+  return treinos.filter((treino) => treino.nivel === nivel);
+}
+
+/** Ordena alfabeticamente por título sem alterar a lista original. */
+export function ordenarPorTitulo(treinos: Treino[]): Treino[] {
+  return [...treinos].sort((a, b) =>
+    a.titulo.localeCompare(b.titulo, 'pt-BR', { sensitivity: 'base' })
+  );
+}
+
+/** Ordena da menor para a maior duração sem alterar a lista original. */
+export function ordenarPorDuracao(treinos: Treino[]): Treino[] {
+  return [...treinos].sort((a, b) => a.duracaoMinutos - b.duracaoMinutos);
+}
+
+/** Ordena de iniciante para avançado sem alterar a lista original. */
+export function ordenarPorNivel(treinos: Treino[]): Treino[] {
+  return [...treinos].sort((a, b) => ORDEM_NIVEIS[a.nivel] - ORDEM_NIVEIS[b.nivel]);
+}
+
+/** Aplica a estratégia escolhida mantendo todas as ordenações puras. */
+export function ordenarTreinos(treinos: Treino[], ordenacao: OrdenacaoTreinos): Treino[] {
+  switch (ordenacao) {
+    case 'duracao':
+      return ordenarPorDuracao(treinos);
+    case 'nivel':
+      return ordenarPorNivel(treinos);
+    case 'titulo':
+      return ordenarPorTitulo(treinos);
+  }
 }
 
 /**

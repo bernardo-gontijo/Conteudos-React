@@ -35,12 +35,12 @@ export const TreinoCard = memo(function TreinoCard({
           <span className={`selo selo--${treino.categoria}`}>
             {ROTULO_CATEGORIA[treino.categoria]}
           </span>
+          <span className="treino-card__duracao">{treino.duracaoMinutos} min</span>
         </div>
         <div className="treino-card__corpo">
           <h3 className="treino-card__titulo">{treino.titulo}</h3>
           <p className="treino-card__meta">
-            {ROTULO_NIVEL[treino.nivel]} · {treino.duracaoMinutos} min ·{' '}
-            {treino.exercicios.length} exercícios
+            {ROTULO_NIVEL[treino.nivel]} · {treino.exercicios.length} exercícios
           </p>
           <div className="treino-card__grupos">
             {treino.grupoMuscular.slice(0, 3).map((grupo) => (

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { filtrarTreinos, formatarTempo } from './treinos.utils';
+import {
+  filtrarPorNivel,
+  filtrarTreinos,
+  formatarTempo,
+  ordenarPorDuracao,
+  ordenarPorNivel,
+  ordenarPorTitulo,
+} from './treinos.utils';
 import type { Treino } from './types';
 
 const treinosFalsos: Treino[] = [
@@ -65,5 +72,29 @@ describe('filtrarTreinos', () => {
     const resultado = filtrarTreinos(treinosFalsos, 'peito', 'peito', 'intermediario');
     expect(resultado).toHaveLength(1);
     expect(resultado[0].id).toBe('1');
+  });
+});
+
+describe('filtrarPorNivel', () => {
+  it('retorna somente os treinos do nível selecionado', () => {
+    const resultado = filtrarPorNivel(treinosFalsos, 'iniciante');
+
+    expect(resultado).toHaveLength(1);
+    expect(resultado[0].id).toBe('2');
+  });
+
+  it('retorna todos os treinos quando o nível é "todos"', () => {
+    expect(filtrarPorNivel(treinosFalsos, 'todos')).toEqual(treinosFalsos);
+  });
+});
+
+describe('ordenação de treinos', () => {
+  it('ordena por título, duração e nível sem alterar a lista original', () => {
+    const original = [...treinosFalsos];
+
+    expect(ordenarPorTitulo(treinosFalsos).map((treino) => treino.id)).toEqual(['2', '1']);
+    expect(ordenarPorDuracao(treinosFalsos).map((treino) => treino.id)).toEqual(['2', '1']);
+    expect(ordenarPorNivel(treinosFalsos).map((treino) => treino.id)).toEqual(['2', '1']);
+    expect(treinosFalsos).toEqual(original);
   });
 });
