@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
 import { CampoBusca } from '../../../components/CampoBusca';
+import { useDebounce } from '../../../hooks/useDebounce';
 import { Loading } from '../../../components/Loading';
 import { MensagemErro } from '../../../components/MensagemErro';
 import { ListaTreinos } from '../components/ListaTreinos';
 import { Paginacao } from '../components/Paginacao';
 import { useTreinos } from '../hooks/useTreinos';
-import { useDebounce } from '../hooks/useDebounce';
 import {
   filtrarPorNivel,
   filtrarTreinos,

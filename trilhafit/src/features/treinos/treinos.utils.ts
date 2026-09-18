@@ -102,6 +102,40 @@ export function obterTreinosRecentes(treinos: Treino[], quantidade = 4): Treino[
   return [...treinos].slice(-quantidade).reverse();
 }
 
+export interface ProgressoMetaSemanal {
+  quantidade: number;
+  atingida: boolean;
+}
+
+/**
+ * Calcula quantos registros pertencem à semana corrente (segunda a domingo)
+ * e se a quantidade alcançou a meta. A data de referência torna a função
+ * determinística e simples de testar.
+ */
+export function calcularProgressoMetaSemanal(
+  registros: RegistroTreino[],
+  metaSemanal: number,
+  dataReferencia = new Date()
+): ProgressoMetaSemanal {
+  const inicioSemana = new Date(
+    dataReferencia.getFullYear(),
+    dataReferencia.getMonth(),
+    dataReferencia.getDate()
+  );
+  const diaDaSemana = inicioSemana.getDay() || 7;
+  inicioSemana.setDate(inicioSemana.getDate() - diaDaSemana + 1);
+
+  const inicioProximaSemana = new Date(inicioSemana);
+  inicioProximaSemana.setDate(inicioProximaSemana.getDate() + 7);
+
+  const quantidade = registros.filter((registro) => {
+    const dataRegistro = new Date(`${registro.data}T00:00:00`);
+    return dataRegistro >= inicioSemana && dataRegistro < inicioProximaSemana;
+  }).length;
+
+  return { quantidade, atingida: quantidade >= metaSemanal };
+}
+
 /**
  * Agrupa registros de treino concluídos por semana (ISO week),
  * somando a carga total de cada semana — usado no dashboard.

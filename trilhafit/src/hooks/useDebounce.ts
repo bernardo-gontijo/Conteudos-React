@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 
 /**
- * Retorna uma versão "atrasada" (debounced) do valor recebido.
- * O valor só é atualizado depois que o usuário para de digitar por
- * `atrasoMs` milissegundos — evita refiltrar a lista a cada tecla.
+ * Retorna uma versão atrasada do valor recebido. O cleanup cancela a
+ * atualização anterior quando o valor muda antes do fim do intervalo.
  */
 export function useDebounce<T>(valor: T, atrasoMs = 300): T {
   const [valorDebounced, setValorDebounced] = useState(valor);
@@ -13,8 +12,6 @@ export function useDebounce<T>(valor: T, atrasoMs = 300): T {
       setValorDebounced(valor);
     }, atrasoMs);
 
-    // Cleanup: cancela o timer anterior sempre que `valor` mudar de novo
-    // antes do atraso terminar, ou quando o componente desmontar.
     return () => clearTimeout(temporizador);
   }, [valor, atrasoMs]);
 

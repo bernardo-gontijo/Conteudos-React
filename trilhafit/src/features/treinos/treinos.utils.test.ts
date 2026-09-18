@@ -3,11 +3,13 @@ import {
   filtrarPorNivel,
   filtrarTreinos,
   formatarTempo,
+  calcularProgressoMetaSemanal,
   ordenarPorDuracao,
   ordenarPorNivel,
   ordenarPorTitulo,
 } from './treinos.utils';
 import type { Treino } from './types';
+import type { RegistroTreino } from './types';
 
 const treinosFalsos: Treino[] = [
   {
@@ -96,5 +98,51 @@ describe('ordenação de treinos', () => {
     expect(ordenarPorDuracao(treinosFalsos).map((treino) => treino.id)).toEqual(['2', '1']);
     expect(ordenarPorNivel(treinosFalsos).map((treino) => treino.id)).toEqual(['2', '1']);
     expect(treinosFalsos).toEqual(original);
+  });
+});
+
+describe('calcularProgressoMetaSemanal', () => {
+  const registros: RegistroTreino[] = [
+    {
+      id: 'r1',
+      treinoId: '1',
+      data: '2026-09-14',
+      duracaoMinutos: 30,
+      cargaTotal: 100,
+    },
+    {
+      id: 'r2',
+      treinoId: '2',
+      data: '2026-09-18',
+      duracaoMinutos: 25,
+      cargaTotal: 80,
+    },
+    {
+      id: 'r3',
+      treinoId: '1',
+      data: '2026-09-13',
+      duracaoMinutos: 30,
+      cargaTotal: 100,
+    },
+  ];
+
+  it('conta apenas os registros da semana atual e informa quando a meta foi atingida', () => {
+    const resultado = calcularProgressoMetaSemanal(
+      registros,
+      2,
+      new Date(2026, 8, 18, 12)
+    );
+
+    expect(resultado).toEqual({ quantidade: 2, atingida: true });
+  });
+
+  it('informa quando a meta ainda não foi atingida', () => {
+    const resultado = calcularProgressoMetaSemanal(
+      registros,
+      3,
+      new Date(2026, 8, 18, 12)
+    );
+
+    expect(resultado).toEqual({ quantidade: 2, atingida: false });
   });
 });

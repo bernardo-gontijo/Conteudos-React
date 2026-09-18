@@ -8,6 +8,7 @@ describe('useDebounce', () => {
   });
 
   afterEach(() => {
+    vi.clearAllTimers();
     vi.useRealTimers();
   });
 
@@ -16,55 +17,31 @@ describe('useDebounce', () => {
     expect(result.current).toBe('a');
   });
 
-  it('não atualiza o valor antes do atraso terminar', () => {
+  it('só atualiza o valor depois de 300 ms', () => {
     const { result, rerender } = renderHook(({ valor }) => useDebounce(valor, 300), {
       initialProps: { valor: 'a' },
     });
 
     rerender({ valor: 'ab' });
-
-    act(() => {
-      vi.advanceTimersByTime(200);
-    });
-
+    act(() => vi.advanceTimersByTime(299));
     expect(result.current).toBe('a');
-  });
 
-  it('atualiza o valor depois do atraso completo', () => {
-    const { result, rerender } = renderHook(({ valor }) => useDebounce(valor, 300), {
-      initialProps: { valor: 'a' },
-    });
-
-    rerender({ valor: 'ab' });
-
-    act(() => {
-      vi.advanceTimersByTime(300);
-    });
-
+    act(() => vi.advanceTimersByTime(1));
     expect(result.current).toBe('ab');
   });
 
-  it('reinicia o temporizador a cada nova digitação (cleanup funcionando)', () => {
+  it('reinicia o temporizador quando o valor muda novamente', () => {
     const { result, rerender } = renderHook(({ valor }) => useDebounce(valor, 300), {
       initialProps: { valor: 'a' },
     });
 
     rerender({ valor: 'ab' });
-    act(() => {
-      vi.advanceTimersByTime(200);
-    });
+    act(() => vi.advanceTimersByTime(200));
     rerender({ valor: 'abc' });
-    act(() => {
-      vi.advanceTimersByTime(200);
-    });
-
-    // Ainda não passaram 300ms desde a última alteração ("abc")
+    act(() => vi.advanceTimersByTime(200));
     expect(result.current).toBe('a');
 
-    act(() => {
-      vi.advanceTimersByTime(100);
-    });
-
+    act(() => vi.advanceTimersByTime(100));
     expect(result.current).toBe('abc');
   });
 });

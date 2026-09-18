@@ -1,4 +1,5 @@
 import { useId, useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Treino } from '../types';
 
 interface FormularioRegistroProps {
@@ -25,6 +26,7 @@ interface ErrosFormulario {
  * e os erros são associados aos campos via aria-describedby.
  */
 export function FormularioRegistro({ treinos, aoSalvar }: FormularioRegistroProps) {
+  const navegar = useNavigate();
   const idTreino = useId();
   const idData = useId();
   const idDuracao = useId();
@@ -87,6 +89,7 @@ export function FormularioRegistro({ treinos, aoSalvar }: FormularioRegistroProp
     setCargaTotal('');
     setObservacoes('');
     setMensagemSucesso(true);
+    navegar('/dashboard');
   }
 
   return (

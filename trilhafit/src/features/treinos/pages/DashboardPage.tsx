@@ -1,8 +1,9 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { ErrorBoundary } from '../../../components/ErrorBoundary';
 import { Loading } from '../../../components/Loading';
+import { useMetaSemanal } from '../../../contexts/MetaSemanalContext';
 import { useRegistrosStore } from '../store/registros.store';
-import { agruparCargaPorSemana } from '../treinos.utils';
+import { agruparCargaPorSemana, calcularProgressoMetaSemanal } from '../treinos.utils';
 
 // Code-splitting real: o Recharts só é baixado quando o usuário
 // navega até o Dashboard, não no bundle inicial da aplicação.
@@ -10,8 +11,13 @@ const GraficoProgresso = lazy(() => import('../components/GraficoProgresso'));
 
 export function DashboardPage() {
   const registros = useRegistrosStore((estado) => estado.registros);
+  const { metaSemanal, atualizarMetaSemanal } = useMetaSemanal();
 
   const dadosGrafico = useMemo(() => agruparCargaPorSemana(registros), [registros]);
+  const progressoMeta = useMemo(
+    () => calcularProgressoMetaSemanal(registros, metaSemanal),
+    [registros, metaSemanal]
+  );
 
   const totalRegistros = registros.length;
   const cargaAcumulada = registros.reduce((soma, r) => soma + r.cargaTotal, 0);
@@ -38,6 +44,31 @@ export function DashboardPage() {
           <span className="cartao-resumo__rotulo">tempo total treinado</span>
         </div>
       </div>
+
+      <section className="meta-semanal" aria-labelledby="titulo-meta-semanal">
+        <div>
+          <h2 id="titulo-meta-semanal">Meta semanal</h2>
+          <p>
+            {progressoMeta.quantidade} de {metaSemanal}{' '}
+            {metaSemanal === 1 ? 'treino' : 'treinos'} nesta semana
+          </p>
+        </div>
+        <label className="meta-semanal__controle">
+          Treinos por semana
+          <input
+            type="number"
+            min={1}
+            step={1}
+            value={metaSemanal}
+            onChange={(evento) => atualizarMetaSemanal(Number(evento.target.value))}
+          />
+        </label>
+        {progressoMeta.atingida && (
+          <p className="meta-semanal__sucesso" role="status">
+            Parabéns! Você bateu sua meta semanal!
+          </p>
+        )}
+      </section>
 
       {dadosGrafico.length === 0 ? (
         <p className="lista-treinos__vazio" role="status">
